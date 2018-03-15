@@ -27,7 +27,8 @@ class Explore(Policy):
 
     def propensity(self, x, action):
         xp = cuda.get_array_module(x)
-        return as_variable(xp.ones(x.shape[0]) / (1.0 * self.nr_actions(x)))
+        output = xp.ones(x.shape[0]) / (1.0 * self.nr_actions(x))
+        return as_variable(output.data.astype(dtype=x.dtype))
 
     def log_propensity(self, x, action):
         return F.log(self.propensity(x, action))
