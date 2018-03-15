@@ -49,8 +49,8 @@ class EpsilonGreedy(Policy):
         return self.policy.nr_actions(x)
 
     def propensity(self, x, action):
-        p = self.epsilon * (action.data == self.max(x).data)
-        p += (1.0 - self.epsilon) / self.nr_actions(x)
+        p = (1.0 - self.epsilon) * (action.data == self.max(x).data)
+        p += self.epsilon / self.nr_actions(x)
         return as_variable(p.data.astype(dtype=x.dtype))
 
     def log_propensity(self, x, action):
