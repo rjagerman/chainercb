@@ -1,4 +1,4 @@
-from chainercb.estimators import CHEstimator, MPeBEstimator
+from chainercb.counterfactual import CHEstimator, MPeBEstimator
 from chainercb.policy import Policy
 
 
