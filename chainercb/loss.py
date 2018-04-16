@@ -1,11 +1,12 @@
 import chainer.functions as F
 
 
-def ips(observations, actions, propensities, rewards, policy, λ=0.0, clip=None,
-        reduce='mean'):
+def ips(observations, actions, log_propensities, rewards, policy, lagrange=0.0,
+        clip=None, reduce='mean'):
     """
     This is the lambda-translated IPS loss as described in Joachims et al
-    (2018), Deep Learning with Logged Bandit Feedback.
+    (2018), Deep Learning with Logged Bandit Feedback. This is a modified
+    version that operates on log-propensities for numerical stability.
 
     :param observations: The observations for the current batch
     :type observations: chainer.Variable
@@ -13,8 +14,9 @@ def ips(observations, actions, propensities, rewards, policy, λ=0.0, clip=None,
     :param actions: The actions that were performed by the logging policy
     :type actions: chainer.Variable
 
-    :param propensities: The logging policy propensity scores for those actions
-    :type propensities: chainer.Variable
+    :param log_propensities: The logging policy log(propensity) scores for those
+                             actions
+    :type log_propensities: chainer.Variable
 
     :param rewards: The rewards (in [0, 1]) that were observed for the chosen
                     actions
@@ -23,10 +25,10 @@ def ips(observations, actions, propensities, rewards, policy, λ=0.0, clip=None,
     :param policy: The policy we wish to optimize
     :type chainercb.policy.Policy
 
-    :param λ: The λ value for translating the loss
-    :type λ: float
+    :param lagrange: The lagrange multiplier λ for translating the loss
+    :type lagrange: float
 
-    :param clip: The clipping value for propensity scores
+    :param clip: The clipping value for log(propensity) scores
     :type clip: float|None
 
     :param reduce: How to reduce the loss: 'no' means this function returns the
@@ -40,21 +42,17 @@ def ips(observations, actions, propensities, rewards, policy, λ=0.0, clip=None,
 
     # Compute the propensity scores of the policy we wish to optimize (this is
     # capable of backprop)
-    policy_propensity = policy.propensity(observations, actions)
+    policy_log_propensities = policy.log_propensity(observations, actions)
 
     # Compute the λ-translated loss from the rewards
-    loss = (1.0 - rewards) - λ
+    loss = (1.0 - rewards) - lagrange
 
-    # Clip logged propensities for numerical stability
+    # Clip logged log_propensities for numerical stability
     if clip is not None:
-        clipped_propensities = F.maximum(propensities.data, 1.0 / clip)
-        inverse_propensities = F.minimum(1.0 / clipped_propensities, clip)
-    else:
-        inverse_propensities = 1.0 / propensities.data
+        log_propensities = F.maximum(log_propensities.data, clip)
 
     # Compute the per-element loss
-    weight = loss * inverse_propensities
-    element_loss = policy_propensity * weight.data
+    element_loss = F.exp(policy_log_propensities - log_propensities) * loss
 
     # Return the loss as a mean or element-wise
     return _reduce_loss(element_loss, reduce)
