@@ -45,9 +45,6 @@ class Softmax(Policy):
         return as_variable(xp.ones(prediction_shape[0]) * prediction_shape[1])
 
     def propensity(self, x, action):
-
-        # The softmax gives us probabilities which we can repurpose as our
-        # propensity scores
         probabilities = F.softmax(self._predict(x))
         return F.select_item(probabilities, action.data)
 
