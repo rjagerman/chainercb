@@ -48,10 +48,28 @@ class EpsilonGreedy(Policy):
     def nr_actions(self, x):
         return self.policy.nr_actions(x)
 
+    def log_nr_actions(self, x):
+        return self.policy.log_nr_actions(x)
+
     def propensity(self, x, action):
-        p = (1.0 - self.epsilon) * (action.data == self.max(x).data)
+        xp = cuda.get_array_module(x, action)
+        max_action = self.max(x)
+        if action.ndim > 1:
+            p = 1.0 * (xp.all(action.data == max_action.data, axis=1))
+        else:
+            p = 1.0 * (action.data == max_action.data)
+        p *= (1.0 - self.epsilon)
         p += self.epsilon / self.nr_actions(x)
         return as_variable(p.data.astype(dtype=x.dtype))
 
     def log_propensity(self, x, action):
-        return F.log(self.propensity(x, action))
+        xp = cuda.get_array_module(x, action)
+        max_action = self.max(x)
+        if action.ndim > 1:
+            p = 1.0 * (xp.all(action.data == max_action.data, axis=1))
+        else:
+            p = 1.0 * (action.data == max_action.data)
+        p_inv = 1.0 - p
+        p *= xp.log(1 - self.epsilon + self.epsilon / self.nr_actions(x).data)
+        p_inv *= xp.log(self.epsilon) - self.log_nr_actions(x)
+        return p + p_inv

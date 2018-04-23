@@ -1,4 +1,4 @@
-from chainer import Chain
+from chainer import Chain, functions as F
 
 
 class Policy(Chain):
@@ -55,6 +55,20 @@ class Policy(Chain):
         :rtype: chainer.Variable
         """
         raise NotImplementedError
+
+    def log_nr_actions(self, x):
+        """
+        Returns the logarithm of the number of actions that the policy can
+        possibly execute for a given batch of context vectors x
+
+        :param x: The context vector
+        :type x: chainer.Variable
+
+        :return: The logarithm of the number of actions that can be executed for
+                 each vector x
+        :rtype: chainer.Variable
+        """
+        return F.log(self.nr_actions(x))
 
     def propensity(self, x, action):
         """
