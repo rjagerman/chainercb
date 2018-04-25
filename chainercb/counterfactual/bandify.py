@@ -5,7 +5,10 @@ class Bandify(Chain):
     def __init__(self, acting_policy):
         super().__init__(acting_policy=acting_policy)
 
-    def __call__(self, observations, labels):
+    def __call__(self, *args):
+        if len(args) != 2:
+            raise RuntimeError('expecting 2 arguments for bandify: (x, y)')
+        observations, labels = args
         actions = self.acting_policy.draw(observations)
         log_propensities = self.acting_policy.log_propensity(observations,
                                                              actions)
