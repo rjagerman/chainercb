@@ -28,7 +28,7 @@ class EpsilonGreedy(Policy):
 
         # Draw a bernoulli sample with probability epsilon for every item in the
         # mini batch
-        draw = (xp.random.random((x.shape[0])) < self.epsilon) * 1.0
+        draw = (self.rng(xp).random((x.shape[0])) < self.epsilon) * 1.0
 
         # Shape depends on the output from the underlying policy, so we
         # reshape to correctly broadcast

@@ -10,7 +10,6 @@ setup(
     author_email='rjagerman@gmail.com',
     license='MIT',
     packages=['chainercb',
-              'chainercb.counterfactual',
               'chainercb.policies',
               'test',
               'test.policies'],
