@@ -101,34 +101,3 @@ class Policy(Chain):
         :rtype: chainer.Variable
         """
         raise NotImplementedError
-
-    def rng(self, xp, seed=None):
-        """
-        Returns the random number generator for this policy
-
-        :param xp: Numpy or cupy module depending on whether we want to generate
-                   numbers on cpu or gpu
-        :type xp: numpy|cupy
-
-        :param seed: The seed
-        :type seed: int|None
-
-        :return: A random number generator
-        :rtype: numpy.random.RandomState|cupy.random.RandomState
-        """
-        if not hasattr(self, '_rng') or self._rng is None:
-            self.seed_rng(xp, seed)
-        return self._rng
-
-    def seed_rng(self, xp, seed=None):
-        """
-        (Re)-seeds the random number generator
-
-        :param xp: Numpy or cupy module depending on whether we want to generate
-                   numbers on cpu or gpu
-        :type xp: numpy|cupy
-
-        :param seed: The seed
-        :type seed: int|None
-        """
-        self._rng = xp.random.RandomState(seed)

@@ -24,7 +24,7 @@ class Softmax(Policy):
         # Construct a conditional probability distribution via softmax and then
         # sample a set of actions from that distribution
         p = self._log_propensities(x)
-        return self._sample(p, self.rng(cuda.get_array_module(x)))
+        return self._sample(p)
 
     def max(self, x):
         # The highest value from our predictor is, by definition, the arg max,
@@ -37,7 +37,7 @@ class Softmax(Policy):
         # Generate a uniform random sample as if it is a softmax where all
         # values are equal
         p = F.log_softmax(xp.ones(self.predictor(x).shape))
-        return self._sample(p, self.rng(xp))
+        return self._sample(p)
 
     def nr_actions(self, x):
         xp = cuda.get_array_module(x)
@@ -79,7 +79,7 @@ class Softmax(Policy):
         """
         return self.predictor(x) / self.tau
 
-    def _sample(self, log_p, rng=None):
+    def _sample(self, log_p):
         """
         Samples an index with probabilities p. This is a modification to the
         reservoir sampling algorithm made efficient on GPUs and numerically
@@ -88,17 +88,11 @@ class Softmax(Policy):
         :param log_p: The log probabilities per row
         :type log_p: chainer.Variable
 
-        :param rng: The random number generator
-        :type rng: numpy.random.RandomState|cupy.random.RandomState|None
-
         :return: For each row, one index, sampled proportional to p
         :rtype: chainer.Variable
         """
         xp = cuda.get_array_module(log_p)
 
-        if rng is None:
-            rng = xp.random
-
-        u = rng.uniform(0.0, 1.0, log_p.shape).astype(dtype=log_p.dtype)
+        u = xp.random.uniform(0.0, 1.0, log_p.shape).astype(dtype=log_p.dtype)
         r = F.log(-F.log(u)) - log_p
         return F.argmin(r, axis=1)
