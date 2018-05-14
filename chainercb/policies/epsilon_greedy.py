@@ -71,5 +71,5 @@ class EpsilonGreedy(Policy):
             p = 1.0 * (action.data == max_action.data)
         p_inv = 1.0 - p
         p *= xp.log(1 - self.epsilon + self.epsilon / self.nr_actions(x).data)
-        p_inv *= xp.log(self.epsilon) - self.log_nr_actions(x)
+        p_inv *= xp.log(self.epsilon) - self.log_nr_actions(x).data
         return p + p_inv
