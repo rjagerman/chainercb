@@ -1,4 +1,4 @@
-from chainer import cuda, Chain, Variable
+from chainer import cuda, Chain, Variable, as_variable
 
 
 class Bandify(Chain):
@@ -13,7 +13,8 @@ class Bandify(Chain):
         actions = self.acting_policy.draw(observations)
         log_propensities = self.acting_policy.log_propensity(observations,
                                                              actions)
-        rewards = self.reward(actions, labels, dtype=observations.dtype)
+        rewards = self.reward(actions, as_variable(labels),
+                              dtype=observations.dtype)
         self.call_hooks(observations, actions, log_propensities, rewards)
         return observations, actions, log_propensities, rewards
 
@@ -46,5 +47,5 @@ class MultiClassBandify(Bandify):
     """
     def reward(self, actions, labels, dtype):
         xp = cuda.get_array_module(actions.data)
-        array = xp.equal(actions.data, labels) * 1.0
+        array = xp.equal(actions.data, labels.data) * 1.0
         return Variable(array.astype(dtype))
