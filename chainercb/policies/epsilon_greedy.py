@@ -59,12 +59,12 @@ class EpsilonGreedy(Policy):
         else:
             p = 1.0 * (action.data == max_action.data)
         p *= (1.0 - self.epsilon)
-        nr_a = self.nr_actions(x)
-        if nr_a > 0.0:
-            p += self.epsilon / nr_a
-        else:
-            return as_variable(xp.ones(action.shape, dtype=x.dtype))
-        return as_variable(p.data.astype(dtype=x.dtype))
+        nr_a = self.nr_actions(x).data
+        m_nr_a = 1.0 * (nr_a > 0.0)
+        m_nr_a_inv = 1.0 * (nr_a == 0.0)
+        p += m_nr_a * self.epsilon / nr_a
+        p = p * (1.0 - m_nr_a_inv) + m_nr_a_inv
+        return as_variable(p.astype(dtype=x.dtype))
 
     def log_propensity(self, x, action):
         xp = cuda.get_array_module(x, action)
@@ -75,9 +75,7 @@ class EpsilonGreedy(Policy):
             p = 1.0 * (action.data == max_action.data)
         p_inv = 1.0 - p
         nr_a = self.nr_actions(x).data
-        if nr_a > 0.0:
-            p *= xp.log(1 - self.epsilon + self.epsilon / nr_a)
-        else:
-            return as_variable(xp.zeros(action.shape, dtype=x.dtype))
+        nr_a[nr_a == 0.0] = 1.0
+        p *= xp.log(1 - self.epsilon + self.epsilon / nr_a)
         p_inv *= xp.log(self.epsilon) - self.log_nr_actions(x).data
         return as_variable(as_variable(p + p_inv).data.astype(dtype=x.dtype))
