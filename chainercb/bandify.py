@@ -15,15 +15,40 @@ class Bandify(Chain):
                                                              actions)
         rewards = self.reward(actions, as_variable(labels),
                               dtype=observations.dtype)
-        self.call_hooks(observations, actions, log_propensities, rewards)
+
+        self._call_hooks(observations, actions, log_propensities, rewards)
+
         return observations, actions, log_propensities, rewards
 
-    def call_hooks(self, obs, actions, log_p, rewards):
-        for hook in self._hooks:
-            hook(obs, actions, log_p, rewards)
+    def _call_hooks(self, x, actions, log_p, rewards):
+        """
+        Calls the internal hooks
+        
+        :param x: The context vectors
+        :type x: chainer.Variable
 
-    def add_hook(self, fn):
-        self._hooks.append(fn)
+        :param actions: The actions that were executed
+        :type actions: chainer.Variable
+
+        :param log_p: The log propensity score(s) of the given action(s)
+        :type log_p: chainer.Variable
+
+        :param rewards: The obtained rewards for the chosen actions
+        :type rewards: chainer.Variable
+        """
+        for hook in self._hooks:
+            hook(x, actions, log_p, rewards)
+
+    def update_policy(self, policy):
+        """
+        Updates the given policy in this bandit chain. That is, whenever an
+        action is executed and reward is obtained, this is propagated to the
+        policy so it can update its state.
+
+        :param policy:
+        :type policy: chainercb.policy.Policy
+        """
+        self._hooks.append(policy)
 
     def reward(self, actions, labels, dtype):
         """
@@ -43,7 +68,7 @@ class Bandify(Chain):
 
 class MultiClassBandify(Bandify):
     """
-    Chain to turn a multiclass problem into a counter factual bandit problem
+    Chain to turn a multiclass problem into a contextual bandit problem
     """
     def reward(self, actions, labels, dtype):
         xp = cuda.get_array_module(actions.data)

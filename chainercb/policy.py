@@ -101,3 +101,24 @@ class Policy(Chain):
         :rtype: chainer.Variable
         """
         raise NotImplementedError
+
+    def __call__(self, x, actions, log_p, rewards):
+        """
+        Updates the policy with given batch of observations, actions,
+        log_probabilities and rewards. This can also be ignored (e.g. in the
+        case where we would backprop through log_p).
+        By default this method does nothing.
+
+        :param x: The context vectors
+        :type x: chainer.Variable
+
+        :param actions: The actions that were executed
+        :type actions: chainer.Variable
+
+        :param log_p: The log propensity score(s) of the given action(s)
+        :type log_p: chainer.Variable
+
+        :param rewards: The obtained rewards for the chosen actions
+        :type rewards: chainer.Variable
+        """
+        pass
