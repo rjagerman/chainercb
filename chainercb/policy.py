@@ -102,7 +102,7 @@ class Policy(Chain):
         """
         raise NotImplementedError
 
-    def __call__(self, x, actions, log_p, rewards):
+    def update(self, x, actions, log_p, rewards):
         """
         Updates the policy with given batch of observations, actions,
         log_probabilities and rewards. This can also be ignored (e.g. in the

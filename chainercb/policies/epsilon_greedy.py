@@ -20,6 +20,7 @@ class EpsilonGreedy(Policy):
 
     def draw(self, x):
         xp = cuda.get_array_module(x)
+        """:type : numpy"""
 
         # Get a full mini batch of actions from both max or uniform, these will
         # get mixed later on with a bernoulli selection strategy

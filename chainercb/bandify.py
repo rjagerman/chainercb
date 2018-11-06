@@ -36,6 +36,10 @@ class Bandify(Chain):
         :param rewards: The obtained rewards for the chosen actions
         :type rewards: chainer.Variable
         """
+        x = as_variable(x)
+        actions = as_variable(actions)
+        log_p = as_variable(log_p)
+        rewards = as_variable(rewards)
         for hook in self._hooks:
             hook(x, actions, log_p, rewards)
 
@@ -45,10 +49,10 @@ class Bandify(Chain):
         action is executed and reward is obtained, this is propagated to the
         policy so it can update its state.
 
-        :param policy:
+        :param policy: The policy to update
         :type policy: chainercb.policy.Policy
         """
-        self._hooks.append(policy)
+        self._hooks.append(policy.update)
 
     def reward(self, actions, labels, dtype):
         """

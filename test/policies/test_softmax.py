@@ -1,7 +1,7 @@
 import numpy as np
 from chainer import Variable
 from chainer.testing import assert_allclose
-from test.util import setup_softmax_policy
+from test.policy import setup_softmax_policy
 
 
 def test_draw():
