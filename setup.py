@@ -2,10 +2,10 @@ from setuptools import setup
 
 setup(
     name='chainercb',
-    version='0.2.0',
+    version='0.2.1',
     description='Neural Contextual Bandits using Chainer',
     url='https://github.com/rjagerman/chainercb',
-    download_url = 'https://github.com/rjagerman/chainercb/archive/v0.2.0.tar.gz',
+    download_url = 'https://github.com/rjagerman/chainercb/archive/v0.2.1.tar.gz',
     author='Rolf Jagerman',
     author_email='rjagerman@gmail.com',
     license='MIT',
