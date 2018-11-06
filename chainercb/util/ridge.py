@@ -36,7 +36,7 @@ class RidgeRegression:
         self._compute_cholesky = True
         self._cho = None
 
-    def update(self, x, r, sub=False):
+    def update(self, x, r):
         """
         Updates the ridge regression estimate
 
@@ -45,19 +45,15 @@ class RidgeRegression:
 
         :param r: Batch of targets, vector of shape (n)
         :type r: chainer.Variable
-
-        :param sub: Whether to subtract a data point
-        :type sub: bool
         """
-        sub = -1.0 if sub is False else 1.0
         x = x.data
         r = r.data
         x_m = self.xp.reshape(x, (x.shape[0], x.shape[1], 1))
         x_m_T = self.xp.reshape(x, (x.shape[0], 1, x.shape[1]))
-        to_add = sub * self.xp.sum(self.xp.matmul(x_m, x_m_T), axis=0)
+        to_add = self.xp.sum(self.xp.matmul(x_m, x_m_T), axis=0)
         self._A += to_add
-        self._b += sub * self.xp.sum(self.xp.broadcast_to(r[:, None], x.shape) * x,
-                                     axis=0)
+        self._b += self.xp.sum(self.xp.broadcast_to(r[:, None], x.shape) * x,
+                               axis=0)
         if x.shape[0] == 1:
             # Perform Sherman-Morrison fast incremental inversion update
             prev = self._A_inv

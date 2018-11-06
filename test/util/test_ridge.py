@@ -3,8 +3,6 @@ from chainer import as_variable
 from chainercb.util import RidgeRegression
 from chainer.testing import assert_allclose
 
-from chainercb.util.ridge import WindowRidgeRegression
-
 
 def test_predict():
     r = RidgeRegression(6)

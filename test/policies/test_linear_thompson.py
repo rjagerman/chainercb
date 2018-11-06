@@ -88,11 +88,12 @@ def test_bandify_propensity_sum():
     assert_allclose(policy.draw(x).data, expected)
 
     # Do a perfect update for all actions (full information essentially)
-    for a in range(k):
-        log_p = as_variable(np.zeros(y.shape))
-        actions = as_variable(np.ones(4, dtype=np.int32) * a)
-        r = (1.0 * (actions.data == y.data))
-        policy.update(x, actions, log_p, as_variable(r))
+    for _ in range(100):
+        for a in range(k):
+            log_p = as_variable(np.zeros(y.shape))
+            actions = as_variable(np.ones(4, dtype=np.int32) * a)
+            r = (1.0 * (actions.data == y.data))
+            policy.update(x, actions, log_p, as_variable(r))
 
     # Compute propensity scores for all actions, given the contexts
     results = np.zeros((x.shape[0], k))
