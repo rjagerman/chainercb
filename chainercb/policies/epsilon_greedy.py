@@ -38,7 +38,7 @@ class EpsilonGreedy(Policy):
 
         # Return with probability (1.0 - epsilon) from maximum and with
         # probability epsilon from uniform
-        return (1.0 - draw) * from_max + draw * from_uniform
+        return as_variable(((1 - draw) * from_max.data + draw * from_uniform.data).astype('I'))
 
     def max(self, x):
         return self.policy.max(x)
